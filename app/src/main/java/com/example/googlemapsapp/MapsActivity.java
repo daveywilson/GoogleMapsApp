@@ -2,7 +2,11 @@ package com.example.googlemapsapp;
 
 import androidx.fragment.app.FragmentActivity;
 
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -11,6 +15,10 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -45,5 +53,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(new MarkerOptions().position(bca).title("Belfast City Airport"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(bca));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(bca,12.0f));
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng point) {
+                Geocoder geoCoder = new Geocoder(getBaseContext(), Locale.getDefault());
+                try{
+                    List<Address> addresses = geoCoder.getFromLocation(point.latitude,point.longitude,1);
+                    Address address = addresses.get(0);
+                    String add = "";
+                    if(addresses.size()>0){
+                        for (int i=0; i <= address.getMaxAddressLineIndex(); i++)
+                            add += address.getAddressLine(i) + "\n";
+                    }
+                    Toast.makeText(getBaseContext(), add, Toast.LENGTH_SHORT).show();
+                } catch (IOException e ){
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 }
